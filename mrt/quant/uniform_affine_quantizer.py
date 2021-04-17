@@ -1,5 +1,4 @@
 from .common import *
-from .common import _RECON_PREFIX
 import mxnet as mx
 
 
@@ -21,7 +20,6 @@ class UniformAffineQuantizerWrapper(Wrapper):
 
     def _build_attr_dict(self):
         assert(self._config['q_op_name'] not in self._ori_op.attr('name'))
-        assert(_RECON_PREFIX not in self._ori_op.attr('name'))
         # None Symble
         self._attr_dict['op_type'] = self._config['q_op_name']
         self._attr_dict['name'] = f"{self._attr_dict['op_type']}_{self._ori_op.attr('name')}"

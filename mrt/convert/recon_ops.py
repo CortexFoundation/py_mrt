@@ -1,7 +1,6 @@
 import mxnet as mx
 from .convert_utils import *
 from ..quant import *
-from ..quant.common import _RECON_PREFIX
 import copy
 from ..model import Model
 
