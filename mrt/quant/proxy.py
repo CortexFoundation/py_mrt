@@ -2,6 +2,19 @@ from .common import *
 import mxnet as mx
 
 
+class ProxyWrapper(Wrapper):
+    def __init__(self, op, config):
+        super(ProxyWrapper, self).__init__(op, config)
+
+    def _build_attr_dict(self):
+        # None Symble
+        self._attr_dict['op_type'] = self._config['q_op_name']
+        self._attr_dict['name'] = f"{self._attr_dict['op_type']}_{self._ori_op.attr('name')}"
+        # Symbles
+        self._attr_dict['data'] = self._ori_op
+        self._attr_dict['qbias'] = mx.sym.Variable(**self._ori_op.list_attr(), name=f"{self._attr_dict['name']}_qbias")
+
+
 class Proxy(mx.operator.CustomOp):
     def __init__(self):
         super(Proxy, self).__init__()

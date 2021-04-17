@@ -1,7 +1,10 @@
 import mxnet as mx
 from mxnet.symbol import _internal
 
+
 _MX_OP_CONTRIB_PREFIX = '_contrib_'
+
+
 def get_mxnet_op(op_name):
     op = getattr(_internal, op_name, None)
     if op is None:

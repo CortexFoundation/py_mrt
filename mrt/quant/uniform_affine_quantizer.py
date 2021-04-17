@@ -1,4 +1,5 @@
 from .common import *
+from .common import _RECON_PREFIX
 import mxnet as mx
 
 
@@ -13,6 +14,40 @@ def _new_detached_nd(*args):
     return res
 
 
+class UniformAffineQuantizerWrapper(Wrapper):
+    def __init__(self, op, config):
+        self.channel_wise = False
+        super(UniformAffineQuantizerWrapper, self).__init__(op, config)
+
+    def _build_attr_dict(self):
+        assert(self._config['q_op_name'] not in self._ori_op.attr('name'))
+        assert(_RECON_PREFIX not in self._ori_op.attr('name'))
+        # None Symble
+        self._attr_dict['op_type'] = self._config['q_op_name']
+        self._attr_dict['name'] = f"{self._attr_dict['op_type']}_{self._ori_op.attr('name')}"
+        self._attr_dict['n_bits'] = self._config['n_bits']
+        self.channel_wise = self._config['channel_wise']
+        # Symbles
+        self._attr_dict['data'] = self._ori_op
+        if not self.channel_wise:
+            self._attr_dict['delta'] = mx.sym.Variable(f"{self._attr_dict['name']}_delta", shape=(1))
+            self._attr_dict['zero_point'] = mx.sym.Variable(f"{self._attr_dict['name']}_zero_point", shape=(1))
+        elif self.channel_wise:
+            # Assume the the fisrt dim of input data is channel
+            assert(len(self._ori_op.infer_shape()[1]) == 1)
+            ori_op_shape = self._ori_op.infer_shape()[1][0]
+            channel_wise_shape = (ori_op_shape[0], * ([1] * (len(ori_op_shape) - 1)))
+            self._attr_dict['delta'] = mx.sym.Variable(
+                f"{self._attr_dict['name']}_delta",
+                shape=channel_wise_shape)
+            self._attr_dict['zero_point'] = mx.sym.Variable(
+                f"{self._attr_dict['name']}_zero_point",
+                shape=channel_wise_shape)
+        else:
+            raise TypeError
+
+
+
 class UniformAffineQuantizer(mx.operator.CustomOp):
     def __init__(self, n_bits):
         super(UniformAffineQuantizer, self).__init__()
@@ -21,7 +56,7 @@ class UniformAffineQuantizer(mx.operator.CustomOp):
 
     def forward(self, is_train, req, in_data, out_data, aux):
         conv_weight, delta, zero_point = in_data[0], in_data[1], in_data[2]
-        x_int = _round_ste(conv_weight / delta) + zero_point
+        x_int = _round_ste(conv_weight / delta) + zero_point #TODO: Zero point is hard to implemented in the Fully Quantized Conditions.
         x_quant = mx.nd.clip(x_int, 0, self.n_levels - 1)
         x_dequant = (x_quant - zero_point) * delta
         self.assign(out_data[0], req[0], x_dequant)

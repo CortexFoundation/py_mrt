@@ -1,10 +1,9 @@
 import mxnet as mx
 from .convert_utils import *
 from ..quant import *
+from ..quant.common import _RECON_PREFIX
 import copy
-
-_RECON_PREFIX = "recon_"
-
+from ..model import Model
 
 def _has_true(key, config):
     if key in config and config[key]:
@@ -12,7 +11,7 @@ def _has_true(key, config):
     return False
 
 
-def recon_Convolution(op: mx.sym.Symbol, graph: dict, info_dict: dict
+def recon_Convolution(op: mx.sym.Symbol, graph: dict,
         quant_weight=True, quant_weight_config={},
         quant_bias=True, quant_bias_config={},
         quant_activation=True, quant_activation_config={},
@@ -22,52 +21,28 @@ def recon_Convolution(op: mx.sym.Symbol, graph: dict, info_dict: dict
 
     if quant_weight:
         weight = childs[1]
-        weight_name = weight.attr('name')
         assert(weight.attr('op_name') == 'null')
-        assert(weight_name in graph)
-        qweight_op_name = quant_weight_config["q_op_name"]
-        del quant_weight_config["q_op_name"]
-        assert(qweight_op_name not in weight_name)
-        assert(_RECON_PREFIX not in weight_name)
-        qweight_name = f"{_RECON_PREFIX}{qweight_op_name}_{weight_name}"
-        zero_point = mx.sym.Variable(qweight_name + '_zero_point', shape=(1))
-        delta = mx.sym.Variable(qweight_name+ '_delta', shape=(1))
-        quant_weight_config.update(kwargs) 
-        qw = mx.sym.Custom(
-            data=weight,
-            delta=delta,
-            zero_point=zero_point,
-            name=qweight_name,
-            op_type=qweight_op_name,
-            **quant_weight_config)
+        assert(weight.attr('name') in graph)
+        quant_weight_config.update(kwargs)
+        qw = UniformAffineQuantizerWrapper(weight, quant_weight_config)
         childs, attrs = sym_iter(op.get_children()), op.list_attr()
-        childs[1] = qw
+        childs[1] = qw.new_op()
         op = get_mxnet_op(op.attr('op_name'))(*childs, **attrs, name=op.attr('name'))
 
     if quant_bias:
         bias = childs[2]
-        assert bias.attr('op_name') == 'null'
-        bias_name = bias.attr('name')
-        qbias_op_name = quant_bias_config["q_op_name"]
-        del quant_bias_config["q_op_name"]
-        assert(qbias_op_name not in bias_name)
-        assert(_RECON_PREFIX not in bias_name)
-        qbias_name = f"{_RECON_PREFIX}{qbias_op_name}_{bias_name}"
-        qbias = mx.sym.Variable(**bias.list_attr(), name= qbias_name + "_qbias")
+        assert(bias.attr('op_name') == 'null')
+        assert(bias.attr('name') in graph)
         quant_bias_config.update(kwargs)
-        qb = mx.sym.Custom(
-            data=bias,
-            qbias=qbias,
-            name=qbias_name,
-            op_type=qbias_op_name,
-            **quant_bias_config)
+        qb = ProxyWrapper(bias, quant_bias_config)
         childs, attrs = sym_iter(op.get_children()), op.list_attr()
-        childs[2] = qb
+        childs[2] = qb.new_op()
         op = get_mxnet_op(op.attr('op_name'))(*childs, **attrs, name=op.attr('name'))
 
     if quant_activation:
-        pass
-
+        quant_activation_config.update(kwargs)
+        qa = UniformAffineQuantizerWrapper(op, quant_activation_config)
+        op = qa.new_op()
 
     return op
 
