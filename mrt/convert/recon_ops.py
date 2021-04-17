@@ -4,11 +4,6 @@ from ..quant import *
 import copy
 from ..model import Model
 
-def _has_true(key, config):
-    if key in config and config[key]:
-        return True
-    return False
-
 
 def recon_Convolution(op: mx.sym.Symbol, graph: dict,
         quant_weight=True, quant_weight_config={},
