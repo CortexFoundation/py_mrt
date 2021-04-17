@@ -65,7 +65,6 @@ def topo_sort(symbol, with_deps=False):
     for s in symbol:
         symbol_map[s.attr('name')] = s
         queue.append(s)
-
     while queue:
         sym = queue.pop(0)
         name = sym.attr('name')
@@ -84,7 +83,6 @@ def topo_sort(symbol, with_deps=False):
                 if child_name not in symbol_map:
                     symbol_map[child_name] = child
                     queue.append(child)
-
     order = []
     reduce_flag = True
     while dep_cnts:
@@ -104,6 +102,7 @@ def topo_sort(symbol, with_deps=False):
                 reduce_flag = True
         for name in remove:
             del dep_cnts[name]
+    raise StopIteration
 
 
 def topo_visit_recon(symbol, callback, get_op=get_mxnet_op, **kwargs):
@@ -124,3 +123,18 @@ def topo_visit_recon(symbol, callback, get_op=get_mxnet_op, **kwargs):
 
     return ret
 
+
+def convert_params_dtype(params, src_dtypes=["float32", "float64"],
+        dest_dtype="float64"):
+    if not params:
+        return {}
+    if isinstance(src_dtypes, str):
+        src_dtypes = [src_dtypes]
+    nparams = {}
+    for k, v in params.items():
+        dtype = v.dtype.__name__
+        if dtype != dest_dtype and dtype in src_dtypes:
+            nparams[k] = v.astype(dest_dtype)
+        else:
+            nparams[k] = v
+    return nparams
