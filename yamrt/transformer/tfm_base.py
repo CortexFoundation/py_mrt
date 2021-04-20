@@ -51,14 +51,14 @@ class Transformer(object):
         """
         return op
 
-    def pre_ptq(self, op, **kwargs):
+    def ptq_pre(self, op, **kwargs):
         """ Operators may need to recontruct for Post-Traning Quantization Parameters Adjustment.
 
             Do nothing by default.
         """
         return op
 
-    def collect_ptq(self, op, **kwargs):
+    def ptq_collect(self, op, **kwargs):
         """ Collect the parameters for Post-Traning Quantization.
             
             Do nothing by default.

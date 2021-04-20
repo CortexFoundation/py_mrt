@@ -28,8 +28,8 @@ from .tfm_base import register_pass, register_transformer, Transformer, \
 from ..fquant import *
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("rewrite")
 @register_pass("fuse_transpose")
@@ -52,8 +52,8 @@ class Null(Transformer):
         return 0
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("rewrite")
 @register_pass("quantize")
 @register_pass("calculate_ops")
@@ -107,7 +107,7 @@ class Transpose(Transformer):
         return op
 
 
-@register_pass("collect_ptq")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("rewrite")
 @register_pass("calculate_ops")
@@ -128,8 +128,8 @@ class Relu(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_transformer("LeakyReLU")
 class LeakyReLU(Transformer):
@@ -171,8 +171,8 @@ class LeakyReLU(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -188,8 +188,8 @@ class MulScalar(Transformer):
         return mx.sym.broadcast_mul(X, var, name=name)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -208,8 +208,8 @@ class DivScalar(Transformer):
         return mx.sym.broadcast_mul(childs[0], graph[sname], name=name)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("quantize")
 @register_transformer("Activation")
 class Activation(Transformer):
@@ -258,7 +258,7 @@ class Activation(Transformer):
         return sym
 
 
-@register_pass("collect_ptq")
+@register_pass("ptq_collect")
 @register_pass("fuse_transpose")
 @register_pass("prepare_for_compile")
 @register_transformer("Convolution")
@@ -363,7 +363,7 @@ class Convolution(Transformer):
         """
         return _quantize_xwb(op, **kwargs)
 
-    def pre_ptq(self, op: mx.sym.Symbol, graph: dict,
+    def ptq_pre(self, op: mx.sym.Symbol, graph: dict,
         quant_weight=True, quant_weight_config={},
         quant_bias=True, quant_bias_config={},
         quant_activation=True, quant_activation_config={},
@@ -426,8 +426,8 @@ class Convolution(Transformer):
                                     **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -467,8 +467,8 @@ class Pad(Transformer):
         return get_nnvm_op('pad')(*childs, name=N.n('pad'), **attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -485,8 +485,8 @@ class ExpandDims(Transformer):
         return get_nnvm_op(op_name)(*childs, **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -523,8 +523,8 @@ class Embedding(Transformer):
         return get_nnvm_op(op_name)(weight, indices, axis=0)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("rewrite")
 @register_pass("calculate_ops")
@@ -548,8 +548,8 @@ class Repeat(Transformer):
         return get_nnvm_op(op_name)(childs[0], **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("validate")
 @register_pass("fuse_transpose")
@@ -588,8 +588,8 @@ class BoxNms(Transformer):
         return nms_out
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("rewrite")
 @register_pass("calculate_ops")
@@ -612,8 +612,8 @@ class SliceLike(Transformer):
         return get_nnvm_op(op_name)(*childs, **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
 @register_transformer("slice_axis")
@@ -652,16 +652,16 @@ class SliceAxis(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_transformer("SliceChannel")
 class SliceChannel(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer('UpSampling')
 class UpSampling(Transformer):
@@ -673,8 +673,8 @@ class UpSampling(Transformer):
         return get_nnvm_op(op_name)(childs[0], **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("fuse_transpose")
 @register_pass("prepare_for_compile")
@@ -773,8 +773,8 @@ class FullyConnected(Transformer):
         return super().calculate_ops(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("validate")
 @register_pass("rewrite")
@@ -790,8 +790,8 @@ class Sigmoid(Transformer):
         return _quantize_table(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("validate")
 @register_pass("rewrite")
@@ -807,8 +807,8 @@ class Exp(Transformer):
         return _quantize_table(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("rewrite")
 @register_pass("fuse_transpose")
@@ -880,8 +880,8 @@ class Softmax(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("fuse_transpose")
 @register_pass("quantize")
 @register_pass("prepare_for_compile")
@@ -989,8 +989,8 @@ class Pooling(Transformer):
         return super().calculate_ops(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1044,8 +1044,8 @@ class BroadcastMul(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1083,8 +1083,8 @@ class BroadcastAdd(Transformer):
         return _quantize_scale(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
@@ -1093,8 +1093,8 @@ class BroadcastDiv(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
@@ -1129,8 +1129,8 @@ class BroadcastSub(Transformer):
         return _quantize_scale(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
 @register_transformer("broadcast_to")
@@ -1138,8 +1138,8 @@ class BroadcastTo(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
 @register_transformer("broadcast_greater")
@@ -1147,8 +1147,8 @@ class BroadcastGreater(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("rewrite")
 @register_pass("validate")
 @register_pass("calculate_ops")
@@ -1188,8 +1188,8 @@ class Concat(Transformer):
         return get_nnvm_op(op_name)(*childs, name=N.n('concat'), **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass('compile')
 @register_pass("rewrite")
@@ -1254,8 +1254,8 @@ class Sum(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("fuse_transpose")
 @register_pass("prepare_for_compile")
@@ -1319,8 +1319,8 @@ class BatchNorm(Transformer):
         return super().calculate_ops(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("fuse_transpose")
 @register_pass("rewrite")
@@ -1336,8 +1336,8 @@ class Flatten(Transformer):
         return sym
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("floor")
 class Floor(Transformer):
@@ -1345,8 +1345,8 @@ class Floor(Transformer):
         return kwargs['childs'][0]
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("ceil")
 class Ceil(Transformer):
@@ -1354,8 +1354,8 @@ class Ceil(Transformer):
         return kwargs['childs'][0]
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("round")
 class Round(Transformer):
@@ -1363,8 +1363,8 @@ class Round(Transformer):
         return kwargs['childs'][0]
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("fix")
 class Fix(Transformer):
@@ -1372,8 +1372,8 @@ class Fix(Transformer):
         return kwargs['childs'][0]
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("prepare_for_compile")
 @register_transformer("Cast")
@@ -1382,8 +1382,8 @@ class Cast(Transformer):
         return kwargs['childs'][0]
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
 @register_pass("validate")
@@ -1418,8 +1418,8 @@ class Slice(Transformer):
                                             **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1438,8 +1438,8 @@ class Reshape(Transformer):
                                     name=N.n('reshape'), **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_transformer("Custom")
 class Custom(Transformer):
@@ -1484,8 +1484,8 @@ class Custom(Transformer):
         return sym
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("rewrite")
 @register_pass("calculate_ops")
 @register_pass("prepare_for_compile")
@@ -1520,8 +1520,8 @@ class Clip(Transformer):
         return get_nnvm_op(op_name)(*childs, **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("_minimum")
 class Minimum(Transformer):
@@ -1533,8 +1533,8 @@ class Minimum(Transformer):
                                     name=N.n('_minimum'), **attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("_maximum")
 class Maximum(Transformer):
@@ -1546,8 +1546,8 @@ class Maximum(Transformer):
                                     name=N.n('_maximum'), **attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("fuse_transpose")
 @register_pass("rewrite")
@@ -1560,8 +1560,8 @@ class Max(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
 @register_transformer("min")
@@ -1569,8 +1569,8 @@ class Min(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("fuse_transpose")
 @register_pass("rewrite")
 @register_pass("quantize")
@@ -1588,8 +1588,8 @@ class Argmax(Transformer):
                                     name=N.n('_argmax'), **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_transformer("argmin")
 class Argmin(Transformer):
@@ -1604,8 +1604,8 @@ class Argmin(Transformer):
                                     name=N.n('_argmin'), **new_attrs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
 @register_transformer("abs")
@@ -1613,8 +1613,8 @@ class Abs(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("compile")
 @register_pass("validate")
 @register_pass("calculate_ops")
@@ -1637,8 +1637,8 @@ class ElemwiseAdd(Transformer):
         return _quantize_scale(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("compile")
 @register_pass("validate")
 @register_pass("calculate_ops")
@@ -1661,8 +1661,8 @@ class ElemwiseSub(Transformer):
         return _quantize_scale(op, **kwargs)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("rewrite")
@@ -1678,8 +1678,8 @@ class Dropout(Transformer):
         return reverse_transpose(op)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("rewrite")
@@ -1689,8 +1689,8 @@ class Arange(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1702,8 +1702,8 @@ class Arange(Transformer):
 class Tile(Transformer):
     pass
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1716,8 +1716,8 @@ class Negative(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1736,8 +1736,8 @@ class SwapAxis(Transformer):
         return mx.sym.transpose(childs[0], tuple(new_axes), name=name)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1755,8 +1755,8 @@ class PlusScalar(Transformer):
         return mx.sym.broadcast_add(childs[0], offset, name=name)
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1773,7 +1773,7 @@ class ZerosLike(Transformer):
 
 
 
-@register_pass("collect_ptq")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1791,8 +1791,8 @@ class OnesLike(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
 @register_pass("rewrite")
@@ -1818,8 +1818,8 @@ class GreaterScalar(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("calculate_ops")
 @register_pass("validate")
 @register_pass("rewrite")
@@ -1831,8 +1831,8 @@ class Where(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("validate")
 @register_pass("calculate_ops")
 @register_pass("fuse_transpose")
@@ -1845,8 +1845,8 @@ class Squeeze(Transformer):
     pass
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("fuse_transpose")
 @register_pass("rewrite")
 # @register_pass("prepare_for_compile") # only for restore
@@ -1904,8 +1904,8 @@ class L2Normalization(Transformer):
         return op
 
 
-@register_pass("pre_ptq")
-@register_pass("collect_ptq")
+@register_pass("ptq_pre")
+@register_pass("ptq_collect")
 @register_pass("prepare_for_compile")
 @register_pass("compile")
 @register_transformer("sqrt")
