@@ -198,9 +198,9 @@ def rewrite(symbol, params):
             apply_pass("rewrite", infer_shapes=infer_shapes))
 
 
-@N.register_nm("pre_ptq")
-def pre_ptq(symbol, params, **kwargs):
-    func = apply_pass("pre_ptq")
+@N.register_nm("ptq_pre")
+def ptq_pre(symbol, params, **kwargs):
+    func = apply_pass("ptq_pre")
     rule_list = kwargs['rule_list']
     def dispatcher(op, **inkwargs):
         config = inkwargs.copy()

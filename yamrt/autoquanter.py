@@ -13,10 +13,16 @@ class AutoQuanter(object):
     def prepare(self):
         raise NotImplementedError
 
-    def pre_ptq(self):
+    def ptq_pre(self):
         raise NotImplementedError
 
-    def collect_ptq(self):
+    def ptq_pre_param(self):
+        raise NotImplementedError
+
+    def ptq(self):
+        raise NotImplementedError 
+
+    def ptq_collect(self):
         raise NotImplementedError
 
     #TODO: Add full APIs.
@@ -25,7 +31,7 @@ class MxnetAutoQuanter(AutoQuanter):
     def __init__(self, model:ModelHandler):
         super(MxnetAutoQuanter, self).__init__(model)
 
-    def prepare(self, input_shape:dict=None): #TODO: Turn configurable like pre_ptq.
+    def prepare(self, input_shape:dict=None): #TODO: Turn configurable like ptq_pre.
         assert(input_shape is not None)
         self._model.visit_model(tpass.name_duplicate_check)
         if isinstance(input_shape, dict):
@@ -45,8 +51,14 @@ class MxnetAutoQuanter(AutoQuanter):
         self._model.update_model(tpass.fuse_constant)
         self._model.update_model(tpass.params_unique)
 
-    def pre_ptq(self, config):
-        self._model.update_model(tpass.pre_ptq, rule_list=config)
+    def ptq_pre(self, config):
+        self._model.update_model(tpass.ptq_pre, rule_list=config)
 
-    def collect_ptq(self):
+    def ptq_pre_param(self):
+        raise NotImplementedError
+
+    def ptq(self):
+        raise NotImplementedError 
+
+    def ptq_collect(self):
         raise NotImplementedError

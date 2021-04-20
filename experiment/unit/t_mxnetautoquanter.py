@@ -38,6 +38,6 @@ def print_sym_name(model, *args, **kwargs):
 
 model.visit_model(print_sym_name)
 
-quanter.pre_ptq(recon_config_list)
+quanter.ptq_pre(recon_config_list)
 
 model.visit_model(print_sym_name)
