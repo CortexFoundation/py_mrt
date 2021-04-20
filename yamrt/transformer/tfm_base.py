@@ -122,6 +122,7 @@ class Transformer(object):
         count = sum(np.product(shp) for shp in infer_shapes[op.attr('name')])
         return count * base_ops
 
+
 _tfm_manager = {}
 def register_transformer(op_name):
     def wrapper(tfm):
@@ -145,6 +146,7 @@ def get_transformer(op):
                 "Transformer %s has not been registered" % op_name)
     return _tfm_manager[op_name]
 
+
 _op_manager = {}
 _pass_manager = {k:[] for k, v in Transformer.__dict__.items() \
         if not k.startswith("_") and callable(v)}
@@ -163,12 +165,14 @@ def register_pass(pass_t):
         return tfm
     return wrapper
 
+
 def pass_info(arg=None):
     if arg is None:
         return _pass_manager
     if isinstance(arg, mx.sym.Symbol):
         return _op_manager.get(arg.attr('op_name'), [])
     return _pass_manager.get(arg, [])
+
 
 def apply_pass(pass_t, **updates):
     def wrapper(op, **kwargs):
@@ -183,6 +187,7 @@ def apply_pass(pass_t, **updates):
             kwargs[n][ret.attr('name')] = kwargs[n][op.attr('name')]
         return ret
     return wrapper
+
 
 OUT_KEY = "out_key"
 TARGET_KEY = "target_key"

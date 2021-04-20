@@ -212,7 +212,6 @@ def pre_ptq(symbol, params, **kwargs):
     return topo_visit_recon(symbol, params, dispatcher, **kwargs)
 
 
-
 def params_unique(symbol, params):
     new_params = {s.attr('name'):params[s.attr('name')] \
             for s in topo_sort(symbol) if is_params(s, params)}

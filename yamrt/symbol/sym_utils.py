@@ -1,4 +1,3 @@
-
 import logging
 import json
 import math
@@ -39,8 +38,6 @@ def nd_zeros(*args, **kwargs):
 
 def nd_ones(*args, **kwargs):
     return nd.ones(*args, dtype="float64", **kwargs)
-
-
 
 
 _MX_OP_CONTRIB_PREFIX = '_contrib_'
@@ -89,6 +86,7 @@ def get_entry_id(sym):
             oindex = json.loads(sym.tojson())['heads'][0][1]
     return oindex
 
+
 def get_node(sym, graph):
     """ Assume all graph node have single output.
         Multiple output node will be fused
@@ -99,6 +97,7 @@ def get_node(sym, graph):
         assert False, "Unrecognized layer:%s in graph keys:%s" \
             % (name, graph.keys())
     return graph[name][get_entry_id(sym)]
+
 
 def sym_iter(sym):
     if sym is None:

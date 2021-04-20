@@ -19,12 +19,13 @@ class AutoQuanter(object):
     def collect_ptq(self):
         raise NotImplementedError
 
+    #TODO: Add full APIs.
 
 class MxnetAutoQuanter(AutoQuanter):
     def __init__(self, model:ModelHandler):
         super(MxnetAutoQuanter, self).__init__(model)
 
-    def prepare(self, input_shape:dict=None):
+    def prepare(self, input_shape:dict=None): #TODO: Turn configurable like pre_ptq.
         assert(input_shape is not None)
         self._model.visit_model(tpass.name_duplicate_check)
         if isinstance(input_shape, dict):
