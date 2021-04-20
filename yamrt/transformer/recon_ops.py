@@ -1,8 +1,7 @@
 import mxnet as mx
 from .convert_utils import *
-from ..quant import *
+from ..fquant import *
 import copy
-from ..model import Model
 
 
 def recon_Convolution(op: mx.sym.Symbol, graph: dict,

@@ -1,7 +1,7 @@
 import mxnet as mx
 
 QUANT_OP_PREFIX = "MRT_"
-_RECON_PREFIX = "recon_"
+
 
 
 class Wrapper(object):

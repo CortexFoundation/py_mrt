@@ -2,15 +2,16 @@ import unittest
 import mxnet as mx
 if mx.__version__ > '1.5.1':
     print(f"[Warning] Unknow Version: {mx.__version__}")
-import site
-site.addsitedir('../')
-from quant.qweight import *
+
 
 class TestUniformAffineQuantizer(unittest.TestCase):
     """Test qweight.py"""
 
     @classmethod
     def setUpClass(cls):
+        import site
+        site.addsitedir('../')
+        import yamrt
         pass
 
     @classmethod
@@ -29,7 +30,7 @@ class TestUniformAffineQuantizer(unittest.TestCase):
         input_data = mx.sym.Variable('input_data', shape=(64, 3, 224, 224))
         zero_point = mx.sym.Variable('zero_point', shape=(1))
         delta = mx.sym.Variable('delta', shape=(1))
-        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='UniformAffineQuantizer')
+        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='MRT_UniformAffineQuantizer', n_bits=32)
         conv = mx.sym.Convolution(input_data, weight, bias, kernel=(7,7), num_filter=64)
         qconv = mx.sym.Convolution(input_data, qweight, bias, kernel=(7,7), num_filter=64)
 
@@ -45,7 +46,7 @@ class TestUniformAffineQuantizer(unittest.TestCase):
         input_data = mx.sym.Variable('input_data', shape=(64, 3, 224, 224))
         zero_point = mx.sym.Variable('zero_point', shape=(1))
         delta = mx.sym.Variable('delta', shape=(1))
-        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='UniformAffineQuantizer')
+        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='MRT_UniformAffineQuantizer', n_bits=32)
         conv = mx.sym.Convolution(input_data, weight, bias, kernel=(7,7), num_filter=64)
         qconv = mx.sym.Convolution(input_data, qweight, bias, kernel=(7,7), num_filter=64)
         args = {"input_data": mx.nd.ones([43,3,224,224]), "weight": mx.nd.ones([64,3,7,7]), "delta": mx.nd.ones([1]), "zero_point": mx.nd.ones([1]), "bias": mx.nd.ones([64])}
@@ -63,7 +64,7 @@ class TestUniformAffineQuantizer(unittest.TestCase):
         input_data = mx.sym.Variable('input_data', shape=(64, 3, 224, 224))
         zero_point = mx.sym.Variable('zero_point', shape=(1))
         delta = mx.sym.Variable('delta', shape=(1))
-        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='UniformAffineQuantizer')
+        qweight = mx.symbol.Custom(data=weight, delta=delta, zero_point=zero_point, name='conv1_wq', op_type='MRT_UniformAffineQuantizer', n_bits=32)
         conv = mx.sym.Convolution(input_data, weight, bias, kernel=(7,7), num_filter=64)
         qconv = mx.sym.Convolution(input_data, qweight, bias, kernel=(7,7), num_filter=64)
         args = {"input_data": mx.nd.ones([43,3,224,224]), "weight": mx.nd.ones([64,3,7,7]), "bias": mx.nd.ones([64])}
