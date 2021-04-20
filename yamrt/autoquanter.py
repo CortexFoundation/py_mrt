@@ -10,19 +10,19 @@ class AutoQuanter(object):
     def __init__(self, model:ModelHandler):
         self._model = model
 
-    def prepare(self):
+    def prepare(self, *args, **kwargs):
         raise NotImplementedError
 
-    def ptq_pre(self):
+    def ptq_pre(self, *args, **kwargs):
         raise NotImplementedError
 
-    def ptq_pre_param(self):
+    def ptq_pre_param(self, *args, **kwargs):
         raise NotImplementedError
 
-    def ptq(self):
+    def ptq(self, *args, **kwargs):
         raise NotImplementedError 
 
-    def ptq_collect(self):
+    def ptq_collect(self, *args, **kwargs):
         raise NotImplementedError
 
     #TODO: Add full APIs.
@@ -57,7 +57,7 @@ class MxnetAutoQuanter(AutoQuanter):
     def ptq_pre_param(self):
         raise NotImplementedError
 
-    def ptq(self):
+    def ptq(self, ):
         raise NotImplementedError 
 
     def ptq_collect(self):
