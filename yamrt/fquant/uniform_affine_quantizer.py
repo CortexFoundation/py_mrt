@@ -1,6 +1,6 @@
 from .common import *
 import mxnet as mx
-
+import mx.ndarray as nd
 
 def _round_ste(x):
     return mx.nd.stop_gradient(mx.nd.round(x) - x) + x
@@ -14,9 +14,14 @@ def _new_detached_nd(*args):
 
 
 class UniformAffineQuantizerWrapper(Wrapper):
+    _scale_methods = ['max_scale', 'max', 'mse']
     def __init__(self, op, config):
         self.channel_wise = False
         super(UniformAffineQuantizerWrapper, self).__init__(op, config)
+        self.delta_nd = None
+        self.delta_op = None
+        self.zero_point_nd = None
+        self.zero_point_op = None
 
     def _build_attr_dict(self):
         assert(self._config['q_op_name'] not in self._ori_op.attr('name'))
@@ -28,21 +33,31 @@ class UniformAffineQuantizerWrapper(Wrapper):
         # Symbles
         self._attr_dict['data'] = self._ori_op
         if not self.channel_wise:
-            self._attr_dict['delta'] = mx.sym.Variable(f"{self._attr_dict['name']}_delta", shape=(1))
-            self._attr_dict['zero_point'] = mx.sym.Variable(f"{self._attr_dict['name']}_zero_point", shape=(1))
+            self.delta_op = mx.sym.Variable(f"{self._attr_dict['name']}_delta", shape=(1))
+            self.zero_point_op = mx.sym.Variable(f"{self._attr_dict['name']}_zero_point", shape=(1))
+            self._attr_dict['delta'] = self.delta_op
+            self._attr_dict['zero_point'] = self.zero_point_op
         elif self.channel_wise:
             # Assume the the fisrt dim of input data is channel
             assert(len(self._ori_op.infer_shape()[1]) == 1)
             ori_op_shape = self._ori_op.infer_shape()[1][0]
             channel_wise_shape = (ori_op_shape[0], * ([1] * (len(ori_op_shape) - 1)))
-            self._attr_dict['delta'] = mx.sym.Variable(
+            self.delta_op = mx.sym.Variable(
                 f"{self._attr_dict['name']}_delta",
                 shape=channel_wise_shape)
-            self._attr_dict['zero_point'] = mx.sym.Variable(
+            self.zero_point_op = mx.sym.Variable(
                 f"{self._attr_dict['name']}_zero_point",
                 shape=channel_wise_shape)
+            self._attr_dict['delta'] = self.delta_op
+            self._attr_dict['zero_point'] = self.zero_point_op
         else:
             raise TypeError
+
+#    def init_param(self, data:nd.NDArray, scale_method:str='max'):
+#        assert scale_method in _scale_methods
+#        if self.channel_wise:
+#            data_abs = data.abs()
+#            data_max_per_channel = 
 
 
 

@@ -51,11 +51,11 @@ class MxnetAutoQuanter(AutoQuanter):
         self._model.update_model(tpass.fuse_constant)
         self._model.update_model(tpass.params_unique)
 
-    def ptq_pre(self, config):
-        self._model.update_model(tpass.ptq_pre, rule_list=config)
+    def ptq_pre(self, rule_list):
+        self._model.update_model(tpass.ptq_pre, rule_list=rule_list)
 
-    def ptq_pre_param(self):
-        raise NotImplementedError
+    def ptq_pre_param(self, config):
+        pass
 
     def ptq(self, ):
         raise NotImplementedError 

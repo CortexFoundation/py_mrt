@@ -26,6 +26,7 @@ from ..symbol.sym_utils import get_attr, sym_iter, is_params, is_inputs, \
 from .tfm_base import register_pass, register_transformer, Transformer, \
                      N, OUT_KEY, MAX_BIT
 from ..fquant import *
+from ..modelhandler import 
 
 
 @register_pass("ptq_pre")
@@ -263,6 +264,14 @@ class Activation(Transformer):
 @register_pass("prepare_for_compile")
 @register_transformer("Convolution")
 class Convolution(Transformer):
+    def __init__(self):
+        super(Convolution, Transformer).__init__()
+        self.qweight_zero_point_op = None
+        self.qweight_delta_op = None
+        self.qactivation_zero_point_op = None
+        self.qactivation_delta_op = None
+        self.qbias_op = None
+
     def validate(self, op, **kwargs):
         op = self._validate_layout(op, **kwargs)
         return op
@@ -363,7 +372,7 @@ class Convolution(Transformer):
         """
         return _quantize_xwb(op, **kwargs)
 
-    def ptq_pre(self, op: mx.sym.Symbol, graph: dict,
+    def ptq_pre(self, op: mx.sym.Symbol, graph: dict
         quant_weight=True, quant_weight_config={},
         quant_bias=True, quant_bias_config={},
         quant_activation=True, quant_activation_config={},

@@ -189,6 +189,21 @@ def apply_pass(pass_t, **updates):
     return wrapper
 
 
+def apply_extend(pass_t, **updates):
+    def wrapper(op, **kwargs):
+        tfm = get_transformer(op)
+        assert pass_t in pass_info(op), \
+                "Transformer %s has not been registered pass:%s" \
+                % (op.attr('op_name'), pass_t)
+        kwargs.update(updates)
+        ret = getattr(tfm, pass_t)(op, **kwargs)
+        for n in updates:
+            assert op.attr('name') in kwargs[n], "%s %s %s"%(n, op.attr('name'), ret.attr('name'))
+            kwargs[n][ret.attr('name')] = kwargs[n][op.attr('name')]
+        return tfm, ret
+    return wrapper
+
+
 OUT_KEY = "out_key"
 TARGET_KEY = "target_key"
 MAX_BIT = 32
