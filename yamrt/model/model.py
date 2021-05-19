@@ -2,7 +2,7 @@
 # None
 # Mxnet Backend
 import mxnet as mx
-from mx import autograd
+from mxnet import autograd
 
 class Model(object):
     def __init__(self):
@@ -13,8 +13,14 @@ class Model(object):
         self._inputs = {}
         self._outputs = {}
 
+    def parameters(self):
+        return self._param
+ 
     def input_names(self):
         return list(self._inputs.keys())
+    
+    def output_names(self):
+        return list(self._outputs.keys())
 
     def name(self):
         return self._name
@@ -26,6 +32,9 @@ class Model(object):
             for child_name, child in self._children:
                 for param_name, param in child:
                     yield (param_name, param)
+
+    def add_output(self, name):
+        raise NotImplementedError
 
     def children(self):
         for child in self._children:
@@ -46,6 +55,12 @@ class Model(object):
 
     def eval(self):
         self._training = False
+        self._set_eval()
+        for child in self._children:
+            child.eval()
+
+    def _set_eval(self):
+        raise NotImplementedError
 
     def __call__(self, data):
         return self.forward(data)
@@ -59,17 +74,3 @@ class Model(object):
             if name not in data_dict:
                 return False
         return True
-    def _forward_impl(self, data):
-        queue = []
-        for child in self.children():
-            queue.append(child)
-        if type(data) is not dict:
-            data = {'data': data}
-        if self._training:
-            with autograd.record():
-                while len(queue) > 0:
-                    child = queue.pop()
-                    input_names = child.input_names()
-                    if self._input_ready(input_names, data):
-                        res = child(data)
-                        data.update(res)

@@ -208,6 +208,19 @@ def ptq_pre(symbol, params, **kwargs):
             if eval(f"{rule['pattern']}"):
                 config.update(rule['kwargs'])
         return func(op, **config)
+    
+    return topo_visit_recon(symbol, params, dispatcher, **kwargs)
+
+@N.register_nm("ptq_pre_param")
+def ptq_pre_param(symbol, params, **kwargs):
+    func = apply_pass("ptq_pre_param")
+    rule_list = kwargs['rule_list']
+    def dispatcher(op, **inkwargs):
+        config = inkwargs.copy()
+        for rule in rule_list:
+            if eval(f"{rule['pattern']}"):
+                config.update(rule['kwargs'])
+        return func(op, **config)
 
     return topo_visit_recon(symbol, params, dispatcher, **kwargs)
 

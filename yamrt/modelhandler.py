@@ -55,6 +55,12 @@ class MxnetModelHandler(ModelHandler):
         self._extended_param = None
         self._extended_dict = None
         self._train = False
+    
+    def symbol(self):
+        return self._sym
+    
+    def params(self):
+        return self._param
 
     def _check(self):
         for op in self._sym:
@@ -83,7 +89,7 @@ class MxnetModelHandler(ModelHandler):
         self._train = False
 
     def visit_sym(self, func, *args,**kwargs):
-        self._sym = func(self._sym, *args, **kwargs)
+        return func(self._sym, *args, **kwargs)
 
     def visit_model(self, func, *args, **kwargs):
         return func(self._sym, self._param, *args, **kwargs)
