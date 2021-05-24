@@ -263,6 +263,7 @@ class Activation(Transformer):
 @register_pass("prepare_for_compile")
 @register_transformer("Convolution")
 class Convolution(Transformer):
+
     def validate(self, op, **kwargs):
         op = self._validate_layout(op, **kwargs)
         return op

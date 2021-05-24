@@ -86,6 +86,8 @@ def get_entry_id(sym):
             oindex = json.loads(sym.tojson())['heads'][0][1]
     return oindex
 
+def has_multi_outs(sym):
+    return sym.attr('op_name') in MULTIPYE_OUTS_NODE
 
 def get_node(sym, graph):
     """ Assume all graph node have single output.

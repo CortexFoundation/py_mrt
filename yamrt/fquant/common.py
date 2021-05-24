@@ -13,6 +13,7 @@ class Wrapper(object):
         self._attr_dict = {}
         self._build_attr_dict()
         self._op = None
+        self._param = None
 
     def _build_attr_dict(self):
         raise NotImplementedError
@@ -31,3 +32,9 @@ class Wrapper(object):
 
     def key(self):
         return self._attr_dict[name]
+
+    def init_param(self, *args, **kwargs):
+        raise NotImplementedError
+
+    def param(self)->dict:
+        return self._param

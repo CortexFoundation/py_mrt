@@ -51,7 +51,17 @@ class MxnetModelHandler(ModelHandler):
         self._sym = model_sym
         self._param = convert_params_dtype(model_params, dest_dtype=dtype)
         self._check()
+        self._extended_sym = None
+        self._extended_param = None
+        self._extended_dict = None
+        self._train = False
     
+    def symbol(self):
+        return self._sym
+    
+    def params(self):
+        return self._param
+
     def _check(self):
         for op in self._sym:
             if op.attr('op_name') == 'null':
@@ -61,8 +71,8 @@ class MxnetModelHandler(ModelHandler):
     def load(cls, symbol_filepath, params_filepath, dtype:str='float64'):
         """ Model load from disk. """
         symbol = mx.sym.load(symbol_filepath)
-        params = mx.nd.load(params_filepath)
-        return cls(symbol, params, dtype)
+        param = mx.nd.load(params_filepath)
+        return cls(symbol, param, dtype)
 
     def __iter__(self):
         return topo_sort(self._sym)
@@ -73,16 +83,19 @@ class MxnetModelHandler(ModelHandler):
         raise StopIteration
 
     def train(self):
-        pass
+        self._train = True
 
     def eval(self):
-        pass
+        self._train = False
 
     def visit_sym(self, func, *args,**kwargs):
-        self._sym = func(self._sym, *args, **kwargs)
+        return func(self._sym, *args, **kwargs)
 
     def visit_model(self, func, *args, **kwargs):
         return func(self._sym, self._param, *args, **kwargs)
 
     def update_model(self, func, *args, **kwargs):
         self._sym, self._param = func(self._sym, self._param, *args, **kwargs)
+
+    def extend_model(self, func, *args, **kwargs):
+        self._extended_sym, self._extended_param, self._extended_dict = func(self._sym, self._param, *args, **kwargs)
