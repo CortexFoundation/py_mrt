@@ -22,7 +22,7 @@ from .tfm_utils import get_bit, get_range, scale, get_bit_cnt, \
                       realize
 from ..symbol.sym_utils import get_attr, sym_iter, is_params, is_inputs, \
                       nd_array, get_mxnet_op, get_nnvm_op, nd_const, \
-                      get_entry_id, nd_arange, get_nd_op
+                      get_entry_id, nd_arange, get_nd_op, nd_full
 from .tfm_base import register_pass, register_transformer, Transformer, \
                      N, OUT_KEY, MAX_BIT
 from ..fquant import *

@@ -6,7 +6,7 @@ from mxnet.symbol import _internal
 
 from .tfm_base import OUT_KEY, N, MAX_BIT
 from ..symbol.sym_utils import *
-
+from . import squant_helper as sim
 
 _RECON_PREFIX = "recon_"
 
@@ -180,7 +180,7 @@ def requant_operator(X, oprec, oscale=None, **kwargs):
                 xopn, xn, sb, iscale, scale_err)
         oscale = iscale * frac * (2 ** exp)
         if frac > 1:
-            var = sutils.nd_const(frac, graph, params)
+            var = nd_const(frac, graph, params)
             X = mx.sym.broadcast_mul(X, var, name=N.n("mrt_quantize_scale"))
         X = realize(X, -exp, oprec)
         logger.debug(
@@ -204,7 +204,7 @@ def requant_parameter(wname, oprec, oscale=None, **kwargs):
     if th_dict[wname] == 0:
         oprec, oscale = 1, 1
         shp = params[wname].shape
-        params[Wn] = sutils.nd_zeros(shp)
+        params[Wn] = nd_zeros(shp)
         attr = {'precision': '1'}
         W = mx.sym.var(Wn, shape=shp, attr=attr)
     else:
@@ -230,6 +230,6 @@ def requant_parameter(wname, oprec, oscale=None, **kwargs):
 
 
 def requant(sym, oprec, oscale=None, **kwargs):
-    if sutils.is_params(sym, kwargs['params']):
+    if is_params(sym, kwargs['params']):
         return requant_parameter(sym.attr('name'), oprec, oscale, **kwargs)
     return requant_operator(sym, oprec, oscale, **kwargs)
