@@ -58,6 +58,7 @@ class MxnetAutoQuanter(AutoQuanter):
         pass
 
     def ptq(self, ):
+
         raise NotImplementedError 
 
     def ptq_collect(self):

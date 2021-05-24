@@ -214,6 +214,7 @@ def ptq_pre(symbol, params, **kwargs):
 @N.register_nm("ptq_pre_param")
 def ptq_pre_param(symbol, params, **kwargs):
     func = apply_pass("ptq_pre_param")
+
     rule_list = kwargs['rule_list']
     def dispatcher(op, **inkwargs):
         config = inkwargs.copy()
