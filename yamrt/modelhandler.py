@@ -21,12 +21,6 @@ class ModelHandler(object):
     def __call__(self, data):
         raise NotImplementedError
 
-    def train(self):
-        raise NotImplementedError
-    
-    def eval(self):
-        raise NotImplementedError
-
     def visit_sym(self, func, *args, **kwargs):
         """Visit the architecture description of model in topo order.
         """
@@ -81,12 +75,6 @@ class MxnetModelHandler(ModelHandler):
         for item in topo_sort(self._sym):
             yield item
         raise StopIteration
-
-    def train(self):
-        self._train = True
-
-    def eval(self):
-        self._train = False
 
     def visit_sym(self, func, *args,**kwargs):
         return func(self._sym, *args, **kwargs)
