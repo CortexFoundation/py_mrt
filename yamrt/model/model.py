@@ -31,7 +31,7 @@ class Model(object):
         if recurse:
             for child_name, child in self._children:
                 for param_name, param in child:
-                    yield (param_name, param)
+                    yield (child_name, param_name, param)
 
     def add_output(self, name):
         raise NotImplementedError
