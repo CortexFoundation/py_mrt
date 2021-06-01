@@ -1,9 +1,3 @@
-# General
-# None
-# Mxnet Backend
-import mxnet as mx
-from mxnet import autograd
-
 class Model(object):
     def __init__(self):
         self._training = True
