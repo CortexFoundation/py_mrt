@@ -3,7 +3,7 @@
 # Mxnet Backend
 import mxnet as mx
 from .transformer.tfm_utils import convert_params_dtype, topo_sort
-
+from .model import SymbolModel
 
 class ModelHandler(object):
     """ Wrapper of Model, design with user-friendly model API.
@@ -13,6 +13,9 @@ class ModelHandler(object):
 
     @classmethod
     def load(*args, **kwargs):
+        raise NotImplementedError
+
+    def model(self):
         raise NotImplementedError
 
     def __next__(self):
@@ -67,6 +70,22 @@ class MxnetModelHandler(ModelHandler):
         symbol = mx.sym.load(symbol_filepath)
         param = mx.nd.load(params_filepath)
         return cls(symbol, param, dtype)
+
+    def model(self, config:dict={}):
+        """Build the runnable model based the config.
+        Args:
+            config:dict; Indicate how to build the runnable model. TODO
+        Returns:
+            model:yamrt.model.Model; The runnable model based on the config.
+        Notice:
+            For current version, the config will be ignore. A proper description of config's template will be discussed soon.
+        """
+        # TODO Add block (a set of basic operation) support.
+        model = SymbolModel()
+        for op in self:
+            model.attach_sym(op, self._param)
+        model.add_output(self._sym.attr('name'))
+        return model
 
     def __iter__(self):
         return topo_sort(self._sym)
